@@ -1,0 +1,106 @@
+# ====================================
+# Service Configurations
+# ====================================
+
+# Cache Services
+# ------------------------------------
+# Redis
+REDIS_PORT=6379
+REDIS_PASSWORD=yourpassword
+REDIS_MAXMEMORY=50mb
+REDIS_MAXMEMORY_POLICY=allkeys-lru
+
+# Database Services
+# ------------------------------------
+# MySQL
+MYSQL_DATABASE=myapp
+MYSQL_USER=myapp
+MYSQL_PASSWORD=myapp_password
+MYSQL_ROOT_PASSWORD=myapp_root_password
+
+# MongoDB
+MONGO_ROOT_USER=admin
+MONGO_ROOT_PASSWORD=admin_password
+
+# PostgreSQL/TimescaleDB
+POSTGRES_DB=admin
+POSTGRES_USER=root
+POSTGRES_PASSWORD=1234
+POSTGRES_MAX_CONNECTIONS=100
+POSTGRES_MAX_PARALLEL_WORKERS=32
+POSTGRES_MAX_PARALLEL_WORKERS_PER_GATHER=4
+
+# Message Queue Services
+# ------------------------------------
+# Kafka
+DOCKER_HOST_IP=127.0.0.1
+KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+KAFKA_ADVERTISED_LISTENERS_EXTERNAL_PROTOCOL=PLAINTEXT
+KAFKA_ADVERTISED_LISTENERS_INTERNAL_PROTOCOL=PLAINTEXT
+KAFKA_HEAP_OPTS=-Xmx512M -Xms256M
+
+# RabbitMQ
+RABBITMQ_USER=admin
+RABBITMQ_PASSWORD=admin_password
+RABBITMQ_VHOST=/
+RABBITMQ_ERLANG_COOKIE=unique-erlang-cookie
+RABBITMQ_MANAGEMENT_USER=management
+RABBITMQ_MANAGEMENT_PASSWORD=management_password
+
+# Search Services
+# ------------------------------------
+# Elasticsearch
+ELASTIC_CLUSTER_NAME=docker-cluster
+ELASTIC_NODE_NAME=elastic-node-1
+ELASTIC_PASSWORD=elastic_password
+ES_JAVA_OPTS=-Xms512m -Xmx512m
+KIBANA_SYSTEM_PASSWORD=kibana_password
+
+# Observability Services
+# ------------------------------------
+# Pyroscope
+PYROSCOPE_LOG_LEVEL=info
+PYROSCOPE_RETENTION_PERIOD=24h
+
+# ====================================
+# Resource Limits
+# ====================================
+
+# Cache Services
+# ------------------------------------
+REDIS_CPU_LIMIT=0.1
+REDIS_MEMORY_LIMIT=64M
+
+# Database Services
+# ------------------------------------
+MYSQL_CPU_LIMIT=1
+MYSQL_MEMORY_LIMIT=1G
+MYSQL_CPU_RESERVATION=0.5
+MYSQL_MEMORY_RESERVATION=512M
+
+MONGO_CPU_LIMIT=0.2
+MONGO_MEMORY_LIMIT=128M
+
+TIMESCALEDB_CPU_LIMIT=0.5
+TIMESCALEDB_MEMORY_LIMIT=512M
+
+# Message Queue Services
+# ------------------------------------
+KAFKA_CPU_LIMIT=0.5
+KAFKA_MEMORY_LIMIT=512M
+ZOOKEEPER_CPU_LIMIT=0.5
+ZOOKEEPER_MEMORY_LIMIT=128M
+
+# RabbitMQ
+RABBITMQ_CPU_LIMIT=0.5
+RABBITMQ_MEMORY_LIMIT=512M
+
+# Search Services
+# ------------------------------------
+ES_CPU_LIMIT=1.0
+ES_MEMORY_LIMIT=1G
+
+# Observability Services
+# ------------------------------------
+PYROSCOPE_CPU_LIMIT=1
+PYROSCOPE_MEMORY_LIMIT=1G

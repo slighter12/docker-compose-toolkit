@@ -1,0 +1,42 @@
+# Docker related
+.docker/
+docker-compose.override.yml
+*.env
+!.env
+.env.*
+!.example
+
+# Docker volumes and data directories
+data/
+volumes/
+**/data/
+**/volumes/
+
+# System files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+log/
+
+# Temporary files
+*.tmp
+temp/
+tmp/
+
+# Build artifacts
+dist/
+build/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Dependencies
+vendor/
+node_modules/ 
