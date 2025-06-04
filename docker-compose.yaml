@@ -20,7 +20,7 @@ services:
       --maxmemory ${REDIS_MAXMEMORY}
       --maxmemory-policy ${REDIS_MAXMEMORY_POLICY}
     networks:
-      - cache-cluster-net
+      - cache-redis-cluster-net
 
   redis-2:
     image: redis:7.0
@@ -41,7 +41,7 @@ services:
       --maxmemory ${REDIS_MAXMEMORY}
       --maxmemory-policy ${REDIS_MAXMEMORY_POLICY}
     networks:
-      - cache-cluster-net
+      - cache-redis-cluster-net
 
   redis-3:
     image: redis:7.0
@@ -62,7 +62,7 @@ services:
       --maxmemory ${REDIS_MAXMEMORY}
       --maxmemory-policy ${REDIS_MAXMEMORY_POLICY}
     networks:
-      - cache-cluster-net
+      - cache-redis-cluster-net
 
   redis-4:
     image: redis:7.0
@@ -83,7 +83,7 @@ services:
       --maxmemory ${REDIS_MAXMEMORY}
       --maxmemory-policy ${REDIS_MAXMEMORY_POLICY}
     networks:
-      - cache-cluster-net
+      - cache-redis-cluster-net
 
   redis-5:
     image: redis:7.0
@@ -104,7 +104,7 @@ services:
       --maxmemory ${REDIS_MAXMEMORY}
       --maxmemory-policy ${REDIS_MAXMEMORY_POLICY}
     networks:
-      - cache-cluster-net
+      - cache-redis-cluster-net
 
   redis-6:
     image: redis:7.0
@@ -125,7 +125,7 @@ services:
       --maxmemory ${REDIS_MAXMEMORY}
       --maxmemory-policy ${REDIS_MAXMEMORY_POLICY}
     networks:
-      - cache-cluster-net
+      - cache-redis-cluster-net
 
   redis-cluster-creator:
     image: redis:7.0
@@ -139,7 +139,7 @@ services:
       bash -c "sleep 5 &&
                redis-cli --cluster create redis-1:6379 redis-2:6379 redis-3:6379 redis-4:6379 redis-5:6379 redis-6:6379 --cluster-replicas 1 --cluster-yes"
     networks:
-      - cache-cluster-net
+      - cache-redis-cluster-net
     depends_on:
       - redis-1
       - redis-2
@@ -168,7 +168,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - cache-sentinel-net
+      - cache-redis-sentinel-net
 
   redis-sentinel-replica-1:
     image: bitnami/redis:7.0
@@ -192,7 +192,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - cache-sentinel-net
+      - cache-redis-sentinel-net
     depends_on:
       - redis-sentinel-master
 
@@ -218,7 +218,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - cache-sentinel-net
+      - cache-redis-sentinel-net
     depends_on:
       - redis-sentinel-master
 
@@ -244,7 +244,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - cache-sentinel-net
+      - cache-redis-sentinel-net
     depends_on:
       - redis-sentinel-master
       - redis-sentinel-replica-1
@@ -272,7 +272,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - cache-sentinel-net
+      - cache-redis-sentinel-net
     depends_on:
       - redis-sentinel-master
       - redis-sentinel-replica-1
@@ -300,11 +300,318 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - cache-sentinel-net
+      - cache-redis-sentinel-net
     depends_on:
       - redis-sentinel-master
       - redis-sentinel-replica-1
       - redis-sentinel-replica-2
+
+  # === Valkey Services ===
+  # Valkey Cluster
+  valkey-1:
+    image: valkey/valkey:8.1-alpine
+    container_name: valkey-1
+    ports:
+      - "7101:6379"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: ${VALKEY_CPU_LIMIT}
+          memory: ${VALKEY_MEMORY_LIMIT}
+    command: >
+      valkey-server 
+      --cluster-enabled yes 
+      --cluster-config-file nodes.conf 
+      --cluster-node-timeout 5000
+      --maxmemory ${VALKEY_MAXMEMORY}
+      --maxmemory-policy ${VALKEY_MAXMEMORY_POLICY}
+    networks:
+      - cache-valkey-cluster-net
+
+  valkey-2:
+    image: valkey/valkey:8.1-alpine
+    container_name: valkey-2
+    ports:
+      - "7102:6379"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: ${VALKEY_CPU_LIMIT}
+          memory: ${VALKEY_MEMORY_LIMIT}
+    command: >
+      valkey-server 
+      --cluster-enabled yes 
+      --cluster-config-file nodes.conf 
+      --cluster-node-timeout 5000
+      --maxmemory ${VALKEY_MAXMEMORY}
+      --maxmemory-policy ${VALKEY_MAXMEMORY_POLICY}
+    networks:
+      - cache-valkey-cluster-net
+
+  valkey-3:
+    image: valkey/valkey:8.1-alpine
+    container_name: valkey-3
+    ports:
+      - "7103:6379"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: ${VALKEY_CPU_LIMIT}
+          memory: ${VALKEY_MEMORY_LIMIT}
+    command: >
+      valkey-server 
+      --cluster-enabled yes 
+      --cluster-config-file nodes.conf 
+      --cluster-node-timeout 5000
+      --maxmemory ${VALKEY_MAXMEMORY}
+      --maxmemory-policy ${VALKEY_MAXMEMORY_POLICY}
+    networks:
+      - cache-valkey-cluster-net
+
+  valkey-4:
+    image: valkey/valkey:8.1-alpine
+    container_name: valkey-4
+    ports:
+      - "7104:6379"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: ${VALKEY_CPU_LIMIT}
+          memory: ${VALKEY_MEMORY_LIMIT}
+    command: >
+      valkey-server 
+      --cluster-enabled yes 
+      --cluster-config-file nodes.conf 
+      --cluster-node-timeout 5000
+      --maxmemory ${VALKEY_MAXMEMORY}
+      --maxmemory-policy ${VALKEY_MAXMEMORY_POLICY}
+    networks:
+      - cache-valkey-cluster-net
+
+  valkey-5:
+    image: valkey/valkey:8.1-alpine
+    container_name: valkey-5
+    ports:
+      - "7105:6379"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: ${VALKEY_CPU_LIMIT}
+          memory: ${VALKEY_MEMORY_LIMIT}
+    command: >
+      valkey-server 
+      --cluster-enabled yes 
+      --cluster-config-file nodes.conf 
+      --cluster-node-timeout 5000
+      --maxmemory ${VALKEY_MAXMEMORY}
+      --maxmemory-policy ${VALKEY_MAXMEMORY_POLICY}
+    networks:
+      - cache-valkey-cluster-net
+
+  valkey-6:
+    image: valkey/valkey:8.1-alpine
+    container_name: valkey-6
+    ports:
+      - "7106:6379"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: ${VALKEY_CPU_LIMIT}
+          memory: ${VALKEY_MEMORY_LIMIT}
+    command: >
+      valkey-server 
+      --cluster-enabled yes 
+      --cluster-config-file nodes.conf 
+      --cluster-node-timeout 5000
+      --maxmemory ${VALKEY_MAXMEMORY}
+      --maxmemory-policy ${VALKEY_MAXMEMORY_POLICY}
+    networks:
+      - cache-valkey-cluster-net
+
+  valkey-cluster-creator:
+    image: valkey/valkey:8.1-alpine
+    container_name: valkey-cluster-creator
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: '32M'
+    command: >
+      bash -c "sleep 5 &&
+               valkey-cli --cluster create valkey-1:6379 valkey-2:6379 valkey-3:6379 valkey-4:6379 valkey-5:6379 valkey-6:6379 --cluster-replicas 1 --cluster-yes"
+    networks:
+      - cache-valkey-cluster-net
+    depends_on:
+      - valkey-1
+      - valkey-2
+      - valkey-3
+      - valkey-4
+      - valkey-5
+      - valkey-6
+
+  # Valkey Sentinel
+  valkey-sentinel-master:
+    image: valkey/valkey:8.1-alpine
+    container_name: valkey-sentinel-master
+    ports:
+      - "7201:6379"
+    restart: unless-stopped
+    environment:
+      - VALKEY_PASSWORD=${VALKEY_PASSWORD}
+    deploy:
+      resources:
+        limits:
+          cpus: ${VALKEY_CPU_LIMIT}
+          memory: ${VALKEY_MEMORY_LIMIT}
+    healthcheck:
+      test: ["CMD", "valkey-cli", "-a", "${VALKEY_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cache-valkey-sentinel-net
+
+  valkey-sentinel-replica-1:
+    image: valkey/valkey:8.1-alpine
+    container_name: valkey-sentinel-replica-1
+    ports:
+      - "7202:6379"
+    restart: unless-stopped
+    environment:
+      - VALKEY_PASSWORD=${VALKEY_PASSWORD}
+      - VALKEY_MASTER_HOST=valkey-sentinel-master
+      - VALKEY_MASTER_PORT=6379
+      - VALKEY_MASTER_PASSWORD=${VALKEY_PASSWORD}
+    deploy:
+      resources:
+        limits:
+          cpus: ${VALKEY_CPU_LIMIT}
+          memory: ${VALKEY_MEMORY_LIMIT}
+    healthcheck:
+      test: ["CMD", "valkey-cli", "-a", "${VALKEY_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cache-valkey-sentinel-net
+    depends_on:
+      - valkey-sentinel-master
+
+  valkey-sentinel-replica-2:
+    image: valkey/valkey:8.1-alpine
+    container_name: valkey-sentinel-replica-2
+    ports:
+      - "7203:6379"
+    restart: unless-stopped
+    environment:
+      - VALKEY_PASSWORD=${VALKEY_PASSWORD}
+      - VALKEY_MASTER_HOST=valkey-sentinel-master
+      - VALKEY_MASTER_PORT=6379
+      - VALKEY_MASTER_PASSWORD=${VALKEY_PASSWORD}
+    deploy:
+      resources:
+        limits:
+          cpus: ${VALKEY_CPU_LIMIT}
+          memory: ${VALKEY_MEMORY_LIMIT}
+    healthcheck:
+      test: ["CMD", "valkey-cli", "-a", "${VALKEY_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cache-valkey-sentinel-net
+    depends_on:
+      - valkey-sentinel-master
+
+  valkey-sentinel-1:
+    image: valkey/valkey:8.1-alpine
+    container_name: valkey-sentinel-1
+    ports:
+      - "27301:26379"
+    restart: unless-stopped
+    environment:
+      - VALKEY_MASTER_HOST=valkey-sentinel-master
+      - VALKEY_MASTER_PORT=6379
+      - VALKEY_MASTER_PASSWORD=${VALKEY_PASSWORD}
+      - VALKEY_SENTINEL_QUORUM=2
+    deploy:
+      resources:
+        limits:
+          cpus: ${VALKEY_CPU_LIMIT}
+          memory: ${VALKEY_MEMORY_LIMIT}
+    healthcheck:
+      test: ["CMD", "valkey-cli", "-p", "26379", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cache-valkey-sentinel-net
+    depends_on:
+      - valkey-sentinel-master
+      - valkey-sentinel-replica-1
+      - valkey-sentinel-replica-2
+
+  valkey-sentinel-2:
+    image: valkey/valkey:8.1-alpine
+    container_name: valkey-sentinel-2
+    ports:
+      - "27302:26379"
+    restart: unless-stopped
+    environment:
+      - VALKEY_MASTER_HOST=valkey-sentinel-master
+      - VALKEY_MASTER_PORT=6379
+      - VALKEY_MASTER_PASSWORD=${VALKEY_PASSWORD}
+      - VALKEY_SENTINEL_QUORUM=2
+    deploy:
+      resources:
+        limits:
+          cpus: ${VALKEY_CPU_LIMIT}
+          memory: ${VALKEY_MEMORY_LIMIT}
+    healthcheck:
+      test: ["CMD", "valkey-cli", "-p", "26379", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cache-valkey-sentinel-net
+    depends_on:
+      - valkey-sentinel-master
+      - valkey-sentinel-replica-1
+      - valkey-sentinel-replica-2
+
+  valkey-sentinel-3:
+    image: valkey/valkey:8.1-alpine
+    container_name: valkey-sentinel-3
+    ports:
+      - "27303:26379"
+    restart: unless-stopped
+    environment:
+      - VALKEY_MASTER_HOST=valkey-sentinel-master
+      - VALKEY_MASTER_PORT=6379
+      - VALKEY_MASTER_PASSWORD=${VALKEY_PASSWORD}
+      - VALKEY_SENTINEL_QUORUM=2
+    deploy:
+      resources:
+        limits:
+          cpus: ${VALKEY_CPU_LIMIT}
+          memory: ${VALKEY_MEMORY_LIMIT}
+    healthcheck:
+      test: ["CMD", "valkey-cli", "-p", "26379", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cache-valkey-sentinel-net
+    depends_on:
+      - valkey-sentinel-master
+      - valkey-sentinel-replica-1
+      - valkey-sentinel-replica-2
 
   # === Database Services ===
   mysql:
@@ -644,10 +951,16 @@ services:
       - observability-net
 
 networks:
-  cache-cluster-net:
+  cache-redis-cluster-net:
     driver: bridge
   
-  cache-sentinel-net:
+  cache-redis-sentinel-net:
+    driver: bridge
+  
+  cache-valkey-cluster-net:
+    driver: bridge
+  
+  cache-valkey-sentinel-net:
     driver: bridge
   
   db-net:

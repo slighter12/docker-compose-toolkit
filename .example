@@ -5,10 +5,14 @@
 # Cache Services
 # ------------------------------------
 # Redis
-REDIS_PORT=6379
 REDIS_PASSWORD=yourpassword
 REDIS_MAXMEMORY=50mb
 REDIS_MAXMEMORY_POLICY=allkeys-lru
+
+# Valkey
+VALKEY_PASSWORD=your_valkey_password
+VALKEY_MAXMEMORY=50mb
+VALKEY_MAXMEMORY_POLICY=allkeys-lru
 
 # Database Services
 # ------------------------------------
@@ -68,8 +72,13 @@ PYROSCOPE_RETENTION_PERIOD=24h
 
 # Cache Services
 # ------------------------------------
+# Redis
 REDIS_CPU_LIMIT=0.1
 REDIS_MEMORY_LIMIT=64M
+
+# Valkey
+VALKEY_CPU_LIMIT=0.1
+VALKEY_MEMORY_LIMIT=64M
 
 # Database Services
 # ------------------------------------

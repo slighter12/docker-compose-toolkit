@@ -1,5 +1,6 @@
 .PHONY: redis-cluster-up redis-cluster-down redis-sentinel-up redis-sentinel-down \
         kafka-up kafka-down rabbitmq-up rabbitmq-down search-up search-down observability-up observability-down \
+        valkey-cluster-up valkey-cluster-down valkey-sentinel-up valkey-sentinel-down \
         all-up all-down
 
 # Redis Cluster commands
@@ -19,6 +20,24 @@ redis-sentinel-up:
 redis-sentinel-down:
 	@echo "Stopping Redis Sentinel..."
 	docker-compose down redis-sentinel-master redis-sentinel-replica-1 redis-sentinel-replica-2 redis-sentinel-1 redis-sentinel-2 redis-sentinel-3
+
+# Valkey Cluster commands
+valkey-cluster-up:
+	@echo "Starting Valkey Cluster..."
+	docker-compose up -d valkey-1 valkey-2 valkey-3 valkey-4 valkey-5 valkey-6 valkey-cluster-creator
+
+valkey-cluster-down:
+	@echo "Stopping Valkey Cluster..."
+	docker-compose down valkey-1 valkey-2 valkey-3 valkey-4 valkey-5 valkey-6 valkey-cluster-creator
+
+# Valkey Sentinel commands
+valkey-sentinel-up:
+	@echo "Starting Valkey Sentinel..."
+	docker-compose up -d valkey-sentinel-master valkey-sentinel-replica-1 valkey-sentinel-replica-2 valkey-sentinel-1 valkey-sentinel-2 valkey-sentinel-3
+
+valkey-sentinel-down:
+	@echo "Stopping Valkey Sentinel..."
+	docker-compose down valkey-sentinel-master valkey-sentinel-replica-1 valkey-sentinel-replica-2 valkey-sentinel-1 valkey-sentinel-2 valkey-sentinel-3
 
 # Kafka commands
 kafka-up:
@@ -64,6 +83,14 @@ redis-cluster-status:
 redis-sentinel-status:
 	@echo "Checking Redis Sentinel status..."
 	docker-compose ps redis-sentinel-master redis-sentinel-replica-1 redis-sentinel-replica-2 redis-sentinel-1 redis-sentinel-2 redis-sentinel-3
+
+valkey-cluster-status:
+	@echo "Checking Valkey Cluster status..."
+	docker-compose ps valkey-1 valkey-2 valkey-3 valkey-4 valkey-5 valkey-6 valkey-cluster-creator
+
+valkey-sentinel-status:
+	@echo "Checking Valkey Sentinel status..."
+	docker-compose ps valkey-sentinel-master valkey-sentinel-replica-1 valkey-sentinel-replica-2 valkey-sentinel-1 valkey-sentinel-2 valkey-sentinel-3
 
 kafka-status:
 	@echo "Checking Kafka status..."
