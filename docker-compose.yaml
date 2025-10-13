@@ -13,9 +13,9 @@ services:
           cpus: ${REDIS_CPU_LIMIT}
           memory: ${REDIS_MEMORY_LIMIT}
     command: >
-      redis-server 
-      --cluster-enabled yes 
-      --cluster-config-file nodes.conf 
+      redis-server
+      --cluster-enabled yes
+      --cluster-config-file nodes.conf
       --cluster-node-timeout 5000
       --maxmemory ${REDIS_MAXMEMORY}
       --maxmemory-policy ${REDIS_MAXMEMORY_POLICY}
@@ -34,9 +34,9 @@ services:
           cpus: ${REDIS_CPU_LIMIT}
           memory: ${REDIS_MEMORY_LIMIT}
     command: >
-      redis-server 
-      --cluster-enabled yes 
-      --cluster-config-file nodes.conf 
+      redis-server
+      --cluster-enabled yes
+      --cluster-config-file nodes.conf
       --cluster-node-timeout 5000
       --maxmemory ${REDIS_MAXMEMORY}
       --maxmemory-policy ${REDIS_MAXMEMORY_POLICY}
@@ -55,9 +55,9 @@ services:
           cpus: ${REDIS_CPU_LIMIT}
           memory: ${REDIS_MEMORY_LIMIT}
     command: >
-      redis-server 
-      --cluster-enabled yes 
-      --cluster-config-file nodes.conf 
+      redis-server
+      --cluster-enabled yes
+      --cluster-config-file nodes.conf
       --cluster-node-timeout 5000
       --maxmemory ${REDIS_MAXMEMORY}
       --maxmemory-policy ${REDIS_MAXMEMORY_POLICY}
@@ -76,9 +76,9 @@ services:
           cpus: ${REDIS_CPU_LIMIT}
           memory: ${REDIS_MEMORY_LIMIT}
     command: >
-      redis-server 
-      --cluster-enabled yes 
-      --cluster-config-file nodes.conf 
+      redis-server
+      --cluster-enabled yes
+      --cluster-config-file nodes.conf
       --cluster-node-timeout 5000
       --maxmemory ${REDIS_MAXMEMORY}
       --maxmemory-policy ${REDIS_MAXMEMORY_POLICY}
@@ -97,9 +97,9 @@ services:
           cpus: ${REDIS_CPU_LIMIT}
           memory: ${REDIS_MEMORY_LIMIT}
     command: >
-      redis-server 
-      --cluster-enabled yes 
-      --cluster-config-file nodes.conf 
+      redis-server
+      --cluster-enabled yes
+      --cluster-config-file nodes.conf
       --cluster-node-timeout 5000
       --maxmemory ${REDIS_MAXMEMORY}
       --maxmemory-policy ${REDIS_MAXMEMORY_POLICY}
@@ -118,9 +118,9 @@ services:
           cpus: ${REDIS_CPU_LIMIT}
           memory: ${REDIS_MEMORY_LIMIT}
     command: >
-      redis-server 
-      --cluster-enabled yes 
-      --cluster-config-file nodes.conf 
+      redis-server
+      --cluster-enabled yes
+      --cluster-config-file nodes.conf
       --cluster-node-timeout 5000
       --maxmemory ${REDIS_MAXMEMORY}
       --maxmemory-policy ${REDIS_MAXMEMORY_POLICY}
@@ -133,8 +133,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.1'
-          memory: '32M'
+          cpus: "0.1"
+          memory: "32M"
     command: >
       bash -c "sleep 5 &&
                redis-cli --cluster create redis-1:6379 redis-2:6379 redis-3:6379 redis-4:6379 redis-5:6379 redis-6:6379 --cluster-replicas 1 --cluster-yes"
@@ -320,9 +320,9 @@ services:
           cpus: ${VALKEY_CPU_LIMIT}
           memory: ${VALKEY_MEMORY_LIMIT}
     command: >
-      valkey-server 
-      --cluster-enabled yes 
-      --cluster-config-file nodes.conf 
+      valkey-server
+      --cluster-enabled yes
+      --cluster-config-file nodes.conf
       --cluster-node-timeout 5000
       --maxmemory ${VALKEY_MAXMEMORY}
       --maxmemory-policy ${VALKEY_MAXMEMORY_POLICY}
@@ -341,9 +341,9 @@ services:
           cpus: ${VALKEY_CPU_LIMIT}
           memory: ${VALKEY_MEMORY_LIMIT}
     command: >
-      valkey-server 
-      --cluster-enabled yes 
-      --cluster-config-file nodes.conf 
+      valkey-server
+      --cluster-enabled yes
+      --cluster-config-file nodes.conf
       --cluster-node-timeout 5000
       --maxmemory ${VALKEY_MAXMEMORY}
       --maxmemory-policy ${VALKEY_MAXMEMORY_POLICY}
@@ -362,9 +362,9 @@ services:
           cpus: ${VALKEY_CPU_LIMIT}
           memory: ${VALKEY_MEMORY_LIMIT}
     command: >
-      valkey-server 
-      --cluster-enabled yes 
-      --cluster-config-file nodes.conf 
+      valkey-server
+      --cluster-enabled yes
+      --cluster-config-file nodes.conf
       --cluster-node-timeout 5000
       --maxmemory ${VALKEY_MAXMEMORY}
       --maxmemory-policy ${VALKEY_MAXMEMORY_POLICY}
@@ -383,9 +383,9 @@ services:
           cpus: ${VALKEY_CPU_LIMIT}
           memory: ${VALKEY_MEMORY_LIMIT}
     command: >
-      valkey-server 
-      --cluster-enabled yes 
-      --cluster-config-file nodes.conf 
+      valkey-server
+      --cluster-enabled yes
+      --cluster-config-file nodes.conf
       --cluster-node-timeout 5000
       --maxmemory ${VALKEY_MAXMEMORY}
       --maxmemory-policy ${VALKEY_MAXMEMORY_POLICY}
@@ -404,9 +404,9 @@ services:
           cpus: ${VALKEY_CPU_LIMIT}
           memory: ${VALKEY_MEMORY_LIMIT}
     command: >
-      valkey-server 
-      --cluster-enabled yes 
-      --cluster-config-file nodes.conf 
+      valkey-server
+      --cluster-enabled yes
+      --cluster-config-file nodes.conf
       --cluster-node-timeout 5000
       --maxmemory ${VALKEY_MAXMEMORY}
       --maxmemory-policy ${VALKEY_MAXMEMORY_POLICY}
@@ -425,9 +425,9 @@ services:
           cpus: ${VALKEY_CPU_LIMIT}
           memory: ${VALKEY_MEMORY_LIMIT}
     command: >
-      valkey-server 
-      --cluster-enabled yes 
-      --cluster-config-file nodes.conf 
+      valkey-server
+      --cluster-enabled yes
+      --cluster-config-file nodes.conf
       --cluster-node-timeout 5000
       --maxmemory ${VALKEY_MAXMEMORY}
       --maxmemory-policy ${VALKEY_MAXMEMORY_POLICY}
@@ -440,8 +440,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.1'
-          memory: '32M'
+          cpus: "0.1"
+          memory: "32M"
     command: >
       bash -c "sleep 5 &&
                valkey-cli --cluster create valkey-1:6379 valkey-2:6379 valkey-3:6379 valkey-4:6379 valkey-5:6379 valkey-6:6379 --cluster-replicas 1 --cluster-yes"
@@ -638,7 +638,18 @@ services:
       - "./data/mysql/data:/var/lib/mysql"
       - "./services/mysql/config:/etc/mysql/conf.d"
     healthcheck:
-      test: ["CMD", "mysql", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}", "-e", "SELECT 1"]
+      test:
+        [
+          "CMD",
+          "mysql",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-p${MYSQL_ROOT_PASSWORD}",
+          "-e",
+          "SELECT 1",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -651,7 +662,7 @@ services:
     container_name: mongo
     ports:
       - "27017:27017"
-    restart: always
+    restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
@@ -661,7 +672,7 @@ services:
           cpus: ${MONGO_CPU_LIMIT}
           memory: ${MONGO_MEMORY_LIMIT}
         reservations:
-          cpus: '0.2'
+          cpus: "0.2"
           memory: 128M
     volumes:
       - "./data/mongo/data:/data/db"
@@ -719,7 +730,7 @@ services:
       - "./data/zookeeper/data:/var/lib/zookeeper/data"
       - "./data/zookeeper/log:/var/lib/zookeeper/log"
     healthcheck:
-      test: [ "CMD-SHELL", "echo stat | nc localhost 2181" ]
+      test: ["CMD-SHELL", "echo stat | nc localhost 2181"]
       interval: 10s
       timeout: 15s
       retries: 10
@@ -751,7 +762,11 @@ services:
       - "./data/kafka/broker-1/data:/var/lib/kafka/data"
       - "./data/kafka/broker-1/logs:/var/log/kafka"
     healthcheck:
-      test: ["CMD-SHELL", "kafka-topics --list --bootstrap-server localhost:9092 || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "kafka-topics --list --bootstrap-server localhost:9092 || exit 1",
+        ]
       interval: 10s
       timeout: 15s
       retries: 10
@@ -785,7 +800,11 @@ services:
       - "./data/kafka/broker-2/data:/var/lib/kafka/data"
       - "./data/kafka/broker-2/logs:/var/log/kafka"
     healthcheck:
-      test: ["CMD-SHELL", "kafka-topics --list --bootstrap-server localhost:9093 || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "kafka-topics --list --bootstrap-server localhost:9093 || exit 1",
+        ]
       interval: 10s
       timeout: 15s
       retries: 10
@@ -819,7 +838,11 @@ services:
       - "./data/kafka/broker-3/data:/var/lib/kafka/data"
       - "./data/kafka/broker-3/logs:/var/log/kafka"
     healthcheck:
-      test: ["CMD-SHELL", "kafka-topics --list --bootstrap-server localhost:9094 || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "kafka-topics --list --bootstrap-server localhost:9094 || exit 1",
+        ]
       interval: 10s
       timeout: 15s
       retries: 10
@@ -832,8 +855,8 @@ services:
     image: rabbitmq:3.12-management
     container_name: rabbitmq
     ports:
-      - "5672:5672"    # AMQP port
-      - "15672:15672"  # Management UI port
+      - "5672:5672" # AMQP port
+      - "15672:15672" # Management UI port
     restart: unless-stopped
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
@@ -868,7 +891,7 @@ services:
     ports:
       - 9200:9200
       - 9300:9300
-    restart: always
+    restart: unless-stopped
     environment:
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - ES_JAVA_OPTS=${ES_JAVA_OPTS}
@@ -898,7 +921,11 @@ services:
       - "./data/elasticsearch/data:/usr/share/elasticsearch/data"
       - "./data/elasticsearch/logs:/usr/share/elasticsearch/logs"
     healthcheck:
-      test: ["CMD-SHELL", "curl -s -f http://localhost:9200/_cat/health >/dev/null || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s -f http://localhost:9200/_cat/health >/dev/null || exit 1",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -911,7 +938,7 @@ services:
     container_name: kibana
     ports:
       - 5601:5601
-    restart: always
+    restart: unless-stopped
     environment:
       - elasticsearch.hosts=http://elasticsearch:9200
       - elasticsearch.password=${KIBANA_SYSTEM_PASSWORD}
@@ -942,27 +969,35 @@ services:
       - "./services/pyroscope/server.yml:/etc/pyroscope/server.yml"
     command: server
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4040/healthz"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:4040/healthz",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s    # 給予足夠的啟動時間
+      start_period: 40s # 給予足夠的啟動時間
     networks:
       - observability-net
 
 networks:
   cache-redis-cluster-net:
     driver: bridge
-  
+
   cache-redis-sentinel-net:
     driver: bridge
-  
+
   cache-valkey-cluster-net:
     driver: bridge
-  
+
   cache-valkey-sentinel-net:
     driver: bridge
-  
+
   db-net:
     driver: bridge
 
