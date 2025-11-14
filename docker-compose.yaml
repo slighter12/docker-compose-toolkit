@@ -150,7 +150,7 @@ services:
 
   # Redis Sentinel
   redis-sentinel-master:
-    image: bitnami/redis:7.0
+    image: docker.io/bitnamilegacy/redis:7.0
     container_name: redis-sentinel-master
     ports:
       - "6379:6379"
@@ -171,7 +171,7 @@ services:
       - cache-redis-sentinel-net
 
   redis-sentinel-replica-1:
-    image: bitnami/redis:7.0
+    image: docker.io/bitnamilegacy/redis:7.0
     container_name: redis-sentinel-replica-1
     ports:
       - "6380:6379"
@@ -197,7 +197,7 @@ services:
       - redis-sentinel-master
 
   redis-sentinel-replica-2:
-    image: bitnami/redis:7.0
+    image: docker.io/bitnamilegacy/redis:7.0
     container_name: redis-sentinel-replica-2
     ports:
       - "6381:6379"
@@ -223,7 +223,7 @@ services:
       - redis-sentinel-master
 
   redis-sentinel-1:
-    image: bitnami/redis-sentinel:7.0
+    image: docker.io/bitnamilegacy/redis-sentinel:7.0
     container_name: redis-sentinel-1
     ports:
       - "26379:26379"
@@ -251,7 +251,7 @@ services:
       - redis-sentinel-replica-2
 
   redis-sentinel-2:
-    image: bitnami/redis-sentinel:7.0
+    image: docker.io/bitnamilegacy/redis-sentinel:7.0
     container_name: redis-sentinel-2
     ports:
       - "26380:26379"
@@ -279,7 +279,7 @@ services:
       - redis-sentinel-replica-2
 
   redis-sentinel-3:
-    image: bitnami/redis-sentinel:7.0
+    image: docker.io/bitnamilegacy/redis-sentinel:7.0
     container_name: redis-sentinel-3
     ports:
       - "26381:26379"
