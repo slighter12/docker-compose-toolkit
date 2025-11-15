@@ -13,6 +13,7 @@
 ## 使用方式
 
 1. 複製環境變數範本：
+
    ```bash
    cp .example .env
    ```
@@ -20,6 +21,7 @@
 2. 根據需求修改 `.env` 檔案
 
 3. 啟動所需服務：
+
    ```bash
    docker-compose up -d [service_name]
    ```
@@ -32,13 +34,8 @@
 
 ## 目錄結構
 
-```
+```text
 .
-├── services/          # 各服務配置目錄
-│   ├── service1/     # 服務1配置
-│   ├── service2/     # 服務2配置
-│   └── ...
-├── data/             # 資料儲存目錄
 ├── .env              # 環境變數配置
 ├── .example          # 環境變數範本
 └── docker-compose.yml # 主配置文件

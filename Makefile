@@ -121,4 +121,4 @@ all-down:
 cleanup:
 	@echo "Cleaning up all data..."
 	docker compose down
-	docker volume prune -f 
+	docker volume prune -f
