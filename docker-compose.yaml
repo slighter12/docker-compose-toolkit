@@ -116,18 +116,7 @@ x-valkey-sentinel: &valkey-sentinel
     - valkey-sentinel-replica-1
     - valkey-sentinel-replica-2
 
-x-kafka-kraft-common: &kafka-kraft-common
-  KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
-  KAFKA_HEAP_OPTS: ${KAFKA_HEAP_OPTS}
-  KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:${KAFKA_ADVERTISED_LISTENERS_INTERNAL_PROTOCOL},EXTERNAL:${KAFKA_ADVERTISED_LISTENERS_EXTERNAL_PROTOCOL},DOCKER:PLAINTEXT,CONTROLLER:PLAINTEXT
-  KAFKA_LOG4J_ROOT_LOGLEVEL: ERROR
-  KAFKA_PROCESS_ROLES: 'broker,controller'
-  KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:19092,2@kafka-2:19093,3@kafka-3:19094'
-  KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
-  CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
-
-x-kafka-service: &kafka-service
+x-kafka-base-service: &kafka-base-service
   image: confluentinc/cp-kafka:8.1.0
   restart: unless-stopped
   deploy:
@@ -137,6 +126,24 @@ x-kafka-service: &kafka-service
         memory: ${KAFKA_MEMORY_LIMIT}
   networks:
     - mq-net
+  command:
+    - "bash"
+    - "-c"
+    - "|
+      if [ ! -f /var/lib/kafka/data/cluster_id ]; then
+        /bin/kafka-storage format --config /etc/kafka/kafka.properties --cluster-id 'MkU3OEVBNTcwNTJENDM2Qk' --ignore-formatted
+      fi
+      /etc/confluent/docker/run"
+  environment:
+    KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
+    KAFKA_HEAP_OPTS: ${KAFKA_HEAP_OPTS}
+    KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+    KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:${KAFKA_ADVERTISED_LISTENERS_INTERNAL_PROTOCOL},EXTERNAL:${KAFKA_ADVERTISED_LISTENERS_EXTERNAL_PROTOCOL},DOCKER:PLAINTEXT,CONTROLLER:PLAINTEXT
+    KAFKA_LOG4J_ROOT_LOGLEVEL: ERROR
+    KAFKA_PROCESS_ROLES: 'broker,controller'
+    KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:19093,2@kafka-2:19094,3@kafka-3:19095'
+    KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+    CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
 
 x-kafka-healthcheck: &kafka-healthcheck
   interval: 10s
@@ -468,24 +475,15 @@ services:
 
   # === Message Queue Services ===
   kafka-1:
-    <<: *kafka-service
+    <<: *kafka-base-service
     container_name: kafka-1
     ports:
       - "9092:9092"
       - "29092:29092"
-    command:
-      - "bash"
-      - "-c"
-      - "|
-        if [ ! -f /var/lib/kafka/data/cluster_id ]; then
-          /bin/kafka-storage format --config /etc/kafka/kafka.properties --cluster-id 'MkU3OEVBNTcwNTJENDM2Qk' --ignore-formatted
-        fi
-        /etc/confluent/docker/run"
     environment:
-      <<: *kafka-kraft-common
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-1:19092,EXTERNAL://${DOCKER_HOST_IP}:9092,DOCKER://host.docker.internal:29092
       KAFKA_NODE_ID: 1
-      KAFKA_LISTENERS: 'INTERNAL://:19092,EXTERNAL://:9092,DOCKER://:29092,CONTROLLER://:19092'
+      KAFKA_LISTENERS: 'INTERNAL://:19092,EXTERNAL://:9092,DOCKER://:29092,CONTROLLER://:19093'
     volumes:
       - "./data/kafka/broker-1/data:/var/lib/kafka/data"
       - "./data/kafka/broker-1/logs:/var/log/kafka"
@@ -498,24 +496,15 @@ services:
         ]
 
   kafka-2:
-    <<: *kafka-service
+    <<: *kafka-base-service
     container_name: kafka-2
     ports:
       - "9093:9093"
       - "29093:29093"
-    command:
-      - "bash"
-      - "-c"
-      - "|
-        if [ ! -f /var/lib/kafka/data/cluster_id ]; then
-          /bin/kafka-storage format --config /etc/kafka/kafka.properties --cluster-id 'MkU3OEVBNTcwNTJENDM2Qk' --ignore-formatted
-        fi
-        /etc/confluent/docker/run"
     environment:
-      <<: *kafka-kraft-common
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-2:19093,EXTERNAL://${DOCKER_HOST_IP}:9093,DOCKER://host.docker.internal:29093
       KAFKA_NODE_ID: 2
-      KAFKA_LISTENERS: 'INTERNAL://:19093,EXTERNAL://:9093,DOCKER://:29093,CONTROLLER://:19093'
+      KAFKA_LISTENERS: 'INTERNAL://:19093,EXTERNAL://:9093,DOCKER://:29093,CONTROLLER://:19094'
     volumes:
       - "./data/kafka/broker-2/data:/var/lib/kafka/data"
       - "./data/kafka/broker-2/logs:/var/log/kafka"
@@ -528,24 +517,15 @@ services:
         ]
 
   kafka-3:
-    <<: *kafka-service
+    <<: *kafka-base-service
     container_name: kafka-3
     ports:
       - "9094:9094"
       - "29094:29094"
-    command:
-      - "bash"
-      - "-c"
-      - "|
-        if [ ! -f /var/lib/kafka/data/cluster_id ]; then
-          /bin/kafka-storage format --config /etc/kafka/kafka.properties --cluster-id 'MkU3OEVBNTcwNTJENDM2Qk' --ignore-formatted
-        fi
-        /etc/confluent/docker/run"
     environment:
-      <<: *kafka-kraft-common
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-3:19094,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9094,DOCKER://host.docker.internal:29094
       KAFKA_NODE_ID: 3
-      KAFKA_LISTENERS: 'INTERNAL://:19094,EXTERNAL://:9094,DOCKER://:29094,CONTROLLER://:19094'
+      KAFKA_LISTENERS: 'INTERNAL://:19094,EXTERNAL://:9094,DOCKER://:29094,CONTROLLER://:19095'
     volumes:
       - "./data/kafka/broker-3/data:/var/lib/kafka/data"
       - "./data/kafka/broker-3/logs:/var/log/kafka"
