@@ -129,11 +129,14 @@ x-kafka-base-service: &kafka-base-service
   command:
     - "bash"
     - "-c"
-    - "|
+    - |
+      set -m
+      /etc/confluent/docker/run &
+      sleep 5
       if [ ! -f /var/lib/kafka/data/cluster_id ]; then
         /bin/kafka-storage format --config /etc/kafka/kafka.properties --cluster-id 'MkU3OEVBNTcwNTJENDM2Qk' --ignore-formatted
       fi
-      /etc/confluent/docker/run"
+      fg 1
   environment:
     KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
     KAFKA_HEAP_OPTS: ${KAFKA_HEAP_OPTS}
@@ -141,7 +144,7 @@ x-kafka-base-service: &kafka-base-service
     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:${KAFKA_ADVERTISED_LISTENERS_INTERNAL_PROTOCOL},EXTERNAL:${KAFKA_ADVERTISED_LISTENERS_EXTERNAL_PROTOCOL},DOCKER:PLAINTEXT,CONTROLLER:PLAINTEXT
     KAFKA_LOG4J_ROOT_LOGLEVEL: ERROR
     KAFKA_PROCESS_ROLES: 'broker,controller'
-    KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:19093,2@kafka-2:19094,3@kafka-3:19095'
+    KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:19096,2@kafka-2:19097,3@kafka-3:19098'
     KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
     CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
 
@@ -483,7 +486,7 @@ services:
     environment:
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-1:19092,EXTERNAL://${DOCKER_HOST_IP}:9092,DOCKER://host.docker.internal:29092
       KAFKA_NODE_ID: 1
-      KAFKA_LISTENERS: 'INTERNAL://:19092,EXTERNAL://:9092,DOCKER://:29092,CONTROLLER://:19093'
+      KAFKA_LISTENERS: 'INTERNAL://:19092,EXTERNAL://:9092,DOCKER://:29092,CONTROLLER://:19096'
     volumes:
       - "./data/kafka/broker-1/data:/var/lib/kafka/data"
       - "./data/kafka/broker-1/logs:/var/log/kafka"
@@ -504,7 +507,7 @@ services:
     environment:
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-2:19093,EXTERNAL://${DOCKER_HOST_IP}:9093,DOCKER://host.docker.internal:29093
       KAFKA_NODE_ID: 2
-      KAFKA_LISTENERS: 'INTERNAL://:19093,EXTERNAL://:9093,DOCKER://:29093,CONTROLLER://:19094'
+      KAFKA_LISTENERS: 'INTERNAL://:19093,EXTERNAL://:9093,DOCKER://:29093,CONTROLLER://:19097'
     volumes:
       - "./data/kafka/broker-2/data:/var/lib/kafka/data"
       - "./data/kafka/broker-2/logs:/var/log/kafka"
@@ -525,7 +528,7 @@ services:
     environment:
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-3:19094,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9094,DOCKER://host.docker.internal:29094
       KAFKA_NODE_ID: 3
-      KAFKA_LISTENERS: 'INTERNAL://:19094,EXTERNAL://:9094,DOCKER://:29094,CONTROLLER://:19095'
+      KAFKA_LISTENERS: 'INTERNAL://:19094,EXTERNAL://:9094,DOCKER://:29094,CONTROLLER://:19098'
     volumes:
       - "./data/kafka/broker-3/data:/var/lib/kafka/data"
       - "./data/kafka/broker-3/logs:/var/log/kafka"
