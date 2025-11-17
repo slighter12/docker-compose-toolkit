@@ -206,14 +206,32 @@ services:
   redis-cluster-creator:
     image: redis:8.2-alpine
     container_name: redis-cluster-creator
+    restart: "no"
     deploy:
       resources:
         limits:
           cpus: "0.1"
           memory: "32M"
     command: >
-      bash -c "sleep 5 &&
-               redis-cli --cluster create redis-1:6379 redis-2:6379 redis-3:6379 redis-4:6379 redis-5:6379 redis-6:6379 --cluster-replicas 1 --cluster-yes"
+      sh -c "
+        echo 'Waiting for Redis nodes to be ready...'
+        sleep 10
+        for i in 1 2 3 4 5 6; do
+          until redis-cli -h redis-$$i -p 6379 ping > /dev/null 2>&1; do
+            echo \"Waiting for redis-$$i...\"
+            sleep 1
+          done
+        done
+        echo 'Checking if cluster already exists...'
+        if redis-cli --cluster check redis-1:6379 > /dev/null 2>&1; then
+          echo 'Redis cluster already exists, skipping creation.'
+          exit 0
+        fi
+        echo 'Creating Redis cluster...'
+        redis-cli --cluster create redis-1:6379 redis-2:6379 redis-3:6379 redis-4:6379 redis-5:6379 redis-6:6379 --cluster-replicas 1 --cluster-yes
+        echo 'Redis cluster created successfully.'
+        exit 0
+      "
     networks:
       - cache-redis-cluster-net
     depends_on:
@@ -318,14 +336,32 @@ services:
   valkey-cluster-creator:
     image: valkey/valkey:9.0-alpine
     container_name: valkey-cluster-creator
+    restart: "no"
     deploy:
       resources:
         limits:
           cpus: "0.1"
           memory: "32M"
     command: >
-      bash -c "sleep 5 &&
-               valkey-cli --cluster create valkey-1:6379 valkey-2:6379 valkey-3:6379 valkey-4:6379 valkey-5:6379 valkey-6:6379 --cluster-replicas 1 --cluster-yes"
+      sh -c "
+        echo 'Waiting for Valkey nodes to be ready...'
+        sleep 10
+        for i in 1 2 3 4 5 6; do
+          until valkey-cli -h valkey-$$i -p 6379 ping > /dev/null 2>&1; do
+            echo \"Waiting for valkey-$$i...\"
+            sleep 1
+          done
+        done
+        echo 'Checking if cluster already exists...'
+        if valkey-cli --cluster check valkey-1:6379 > /dev/null 2>&1; then
+          echo 'Valkey cluster already exists, skipping creation.'
+          exit 0
+        fi
+        echo 'Creating Valkey cluster...'
+        valkey-cli --cluster create valkey-1:6379 valkey-2:6379 valkey-3:6379 valkey-4:6379 valkey-5:6379 valkey-6:6379 --cluster-replicas 1 --cluster-yes
+        echo 'Valkey cluster created successfully.'
+        exit 0
+      "
     networks:
       - cache-valkey-cluster-net
     depends_on:
