@@ -496,7 +496,7 @@ services:
       - "29092:29092"
     environment:
       <<: *kafka-base-env
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-1:19092,EXTERNAL://${DOCKER_HOST_IP}:9092,DOCKER://host.docker.internal:29092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-1:19092,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092,DOCKER://host.docker.internal:29092
       KAFKA_NODE_ID: 1
       KAFKA_LISTENERS: 'INTERNAL://:19092,EXTERNAL://:9092,DOCKER://:29092,CONTROLLER://:19096'
     volumes:
@@ -518,7 +518,7 @@ services:
       - "29093:29093"
     environment:
       <<: *kafka-base-env
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-2:19093,EXTERNAL://${DOCKER_HOST_IP}:9093,DOCKER://host.docker.internal:29093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-2:19093,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9093,DOCKER://host.docker.internal:29093
       KAFKA_NODE_ID: 2
       KAFKA_LISTENERS: 'INTERNAL://:19093,EXTERNAL://:9093,DOCKER://:29093,CONTROLLER://:19097'
     volumes:
