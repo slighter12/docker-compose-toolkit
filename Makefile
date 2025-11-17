@@ -42,11 +42,11 @@ valkey-sentinel-down:
 # Kafka commands
 kafka-up:
 	@echo "Starting Kafka..."
-	docker compose up -d zookeeper kafka-1 kafka-2 kafka-3
+	docker compose up -d kafka-1 kafka-2 kafka-3
 
 kafka-down:
 	@echo "Stopping Kafka..."
-	docker compose down zookeeper kafka-1 kafka-2 kafka-3
+	docker compose down kafka-1 kafka-2 kafka-3
 
 # RabbitMQ commands
 rabbitmq-up:
@@ -94,7 +94,7 @@ valkey-sentinel-status:
 
 kafka-status:
 	@echo "Checking Kafka status..."
-	docker compose ps zookeeper kafka-1 kafka-2 kafka-3
+	docker compose ps kafka-1 kafka-2 kafka-3
 
 rabbitmq-status:
 	@echo "Checking RabbitMQ status..."

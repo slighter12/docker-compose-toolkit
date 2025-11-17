@@ -1,5 +1,5 @@
 x-redis-cluster-service: &redis-cluster-service
-  image: redis:7.0
+  image: redis:8.2-alpine
   restart: unless-stopped
   deploy:
     resources:
@@ -17,7 +17,7 @@ x-redis-cluster-service: &redis-cluster-service
     - cache-redis-cluster-net
 
 x-redis-sentinel-service: &redis-sentinel-service
-  image: docker.io/bitnamilegacy/redis:7.0
+  image: docker.io/bitnamilegacy/redis:8.2
   restart: unless-stopped
   deploy:
     resources:
@@ -33,7 +33,7 @@ x-redis-sentinel-service: &redis-sentinel-service
     - cache-redis-sentinel-net
 
 x-redis-sentinel: &redis-sentinel
-  image: docker.io/bitnamilegacy/redis-sentinel:7.0
+  image: docker.io/bitnamilegacy/redis-sentinel:8.2
   restart: unless-stopped
   environment:
     - REDIS_MASTER_HOST=redis-sentinel-master
@@ -58,7 +58,7 @@ x-redis-sentinel: &redis-sentinel
     - redis-sentinel-replica-2
 
 x-valkey-cluster-service: &valkey-cluster-service
-  image: valkey/valkey:8.1-alpine
+  image: valkey/valkey:9.0-alpine
   restart: unless-stopped
   deploy:
     resources:
@@ -76,7 +76,7 @@ x-valkey-cluster-service: &valkey-cluster-service
     - cache-valkey-cluster-net
 
 x-valkey-sentinel-service: &valkey-sentinel-service
-  image: valkey/valkey:8.1-alpine
+  image: valkey/valkey:9.0-alpine
   restart: unless-stopped
   deploy:
     resources:
@@ -92,7 +92,7 @@ x-valkey-sentinel-service: &valkey-sentinel-service
     - cache-valkey-sentinel-net
 
 x-valkey-sentinel: &valkey-sentinel
-  image: valkey/valkey:8.1-alpine
+  image: valkey/valkey:9.0-alpine
   restart: unless-stopped
   environment:
     - VALKEY_MASTER_HOST=valkey-sentinel-master
@@ -116,8 +116,19 @@ x-valkey-sentinel: &valkey-sentinel
     - valkey-sentinel-replica-1
     - valkey-sentinel-replica-2
 
-x-kafka-service: &kafka-service
-  image: confluentinc/cp-kafka:7.7.0
+x-kafka-base-env: &kafka-base-env
+  KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
+  KAFKA_HEAP_OPTS: ${KAFKA_HEAP_OPTS}
+  KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:${KAFKA_ADVERTISED_LISTENERS_INTERNAL_PROTOCOL},EXTERNAL:${KAFKA_ADVERTISED_LISTENERS_EXTERNAL_PROTOCOL},DOCKER:PLAINTEXT,CONTROLLER:PLAINTEXT
+  KAFKA_LOG4J_ROOT_LOGLEVEL: ERROR
+  KAFKA_PROCESS_ROLES: 'broker,controller'
+  KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:19096,2@kafka-2:19097,3@kafka-3:19098'
+  KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+  KAFKA_CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+
+x-kafka-base-service: &kafka-base-service
+  image: confluentinc/cp-kafka:8.1.0
   restart: unless-stopped
   deploy:
     resources:
@@ -126,8 +137,27 @@ x-kafka-service: &kafka-service
         memory: ${KAFKA_MEMORY_LIMIT}
   networks:
     - mq-net
-  depends_on:
-    - zookeeper
+  command:
+    - "bash"
+    - "-c"
+    - |
+      set -euo pipefail
+      set -m
+      /etc/confluent/docker/run &
+      CONFIG_FILE="/etc/kafka/server.properties"
+      DATA_DIR="/var/lib/kafka/data"
+      until [ -f "$$CONFIG_FILE" ]; do
+        sleep 1
+      done
+      if [ ! -f "$$DATA_DIR/meta.properties" ]; then
+        echo "Formatting Kafka storage for node $$KAFKA_NODE_ID..."
+        kafka-storage format \
+          --config "$$CONFIG_FILE" \
+          --cluster-id "$$KAFKA_CLUSTER_ID" \
+          --ignore-formatted
+      fi
+      fg 1
+  environment: *kafka-base-env
 
 x-kafka-healthcheck: &kafka-healthcheck
   interval: 10s
@@ -174,16 +204,34 @@ services:
       - "7006:6379"
 
   redis-cluster-creator:
-    image: redis:7.0
+    image: redis:8.2-alpine
     container_name: redis-cluster-creator
+    restart: "no"
     deploy:
       resources:
         limits:
           cpus: "0.1"
           memory: "32M"
     command: >
-      bash -c "sleep 5 &&
-               redis-cli --cluster create redis-1:6379 redis-2:6379 redis-3:6379 redis-4:6379 redis-5:6379 redis-6:6379 --cluster-replicas 1 --cluster-yes"
+      sh -c "
+        echo 'Waiting for Redis nodes to be ready...'
+        sleep 10
+        for i in 1 2 3 4 5 6; do
+          until redis-cli -h redis-$$i -p 6379 ping > /dev/null 2>&1; do
+            echo \"Waiting for redis-$$i...\"
+            sleep 1
+          done
+        done
+        echo 'Checking if cluster already exists...'
+        if redis-cli --cluster check redis-1:6379 > /dev/null 2>&1; then
+          echo 'Redis cluster already exists, skipping creation.'
+          exit 0
+        fi
+        echo 'Creating Redis cluster...'
+        redis-cli --cluster create redis-1:6379 redis-2:6379 redis-3:6379 redis-4:6379 redis-5:6379 redis-6:6379 --cluster-replicas 1 --cluster-yes
+        echo 'Redis cluster created successfully.'
+        exit 0
+      "
     networks:
       - cache-redis-cluster-net
     depends_on:
@@ -286,16 +334,34 @@ services:
       - "7106:6379"
 
   valkey-cluster-creator:
-    image: valkey/valkey:8.1-alpine
+    image: valkey/valkey:9.0-alpine
     container_name: valkey-cluster-creator
+    restart: "no"
     deploy:
       resources:
         limits:
           cpus: "0.1"
           memory: "32M"
     command: >
-      bash -c "sleep 5 &&
-               valkey-cli --cluster create valkey-1:6379 valkey-2:6379 valkey-3:6379 valkey-4:6379 valkey-5:6379 valkey-6:6379 --cluster-replicas 1 --cluster-yes"
+      sh -c "
+        echo 'Waiting for Valkey nodes to be ready...'
+        sleep 10
+        for i in 1 2 3 4 5 6; do
+          until valkey-cli -h valkey-$$i -p 6379 ping > /dev/null 2>&1; do
+            echo \"Waiting for valkey-$$i...\"
+            sleep 1
+          done
+        done
+        echo 'Checking if cluster already exists...'
+        if valkey-cli --cluster check valkey-1:6379 > /dev/null 2>&1; then
+          echo 'Valkey cluster already exists, skipping creation.'
+          exit 0
+        fi
+        echo 'Creating Valkey cluster...'
+        valkey-cli --cluster create valkey-1:6379 valkey-2:6379 valkey-3:6379 valkey-4:6379 valkey-5:6379 valkey-6:6379 --cluster-replicas 1 --cluster-yes
+        echo 'Valkey cluster created successfully.'
+        exit 0
+      "
     networks:
       - cache-valkey-cluster-net
     depends_on:
@@ -458,46 +524,17 @@ services:
       - db-net
 
   # === Message Queue Services ===
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.7.0
-    container_name: zookeeper
-    ports:
-      - "2181:2181"
-    restart: unless-stopped
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    deploy:
-      resources:
-        limits:
-          cpus: ${ZOOKEEPER_CPU_LIMIT}
-          memory: ${ZOOKEEPER_MEMORY_LIMIT}
-    volumes:
-      - "./data/zookeeper/data:/var/lib/zookeeper/data"
-      - "./data/zookeeper/log:/var/lib/zookeeper/log"
-    healthcheck:
-      test: ["CMD-SHELL", "echo stat | nc localhost 2181"]
-      interval: 10s
-      timeout: 15s
-      retries: 10
-    networks:
-      - mq-net
-
   kafka-1:
-    <<: *kafka-service
+    <<: *kafka-base-service
     container_name: kafka-1
     ports:
       - "9092:9092"
       - "29092:29092"
     environment:
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-1:19092,EXTERNAL://${DOCKER_HOST_IP}:9092,DOCKER://host.docker.internal:29092
-      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
-      KAFKA_BROKER_ID: 1
-      KAFKA_HEAP_OPTS: ${KAFKA_HEAP_OPTS}
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:${KAFKA_ADVERTISED_LISTENERS_INTERNAL_PROTOCOL},EXTERNAL:${KAFKA_ADVERTISED_LISTENERS_EXTERNAL_PROTOCOL},DOCKER:PLAINTEXT
-      KAFKA_LOG4J_ROOT_LOGLEVEL: ERROR
-      KAFKA_ZOOKEEPER_CONNECT: ${KAFKA_ZOOKEEPER_CONNECT}
+      <<: *kafka-base-env
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-1:19092,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092,DOCKER://host.docker.internal:29092
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENERS: 'INTERNAL://:19092,EXTERNAL://:9092,DOCKER://:29092,CONTROLLER://:19096'
     volumes:
       - "./data/kafka/broker-1/data:/var/lib/kafka/data"
       - "./data/kafka/broker-1/logs:/var/log/kafka"
@@ -510,20 +547,16 @@ services:
         ]
 
   kafka-2:
-    <<: *kafka-service
+    <<: *kafka-base-service
     container_name: kafka-2
     ports:
       - "9093:9093"
       - "29093:29093"
     environment:
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-2:19093,EXTERNAL://${DOCKER_HOST_IP}:9093,DOCKER://host.docker.internal:29093
-      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
-      KAFKA_BROKER_ID: 2
-      KAFKA_HEAP_OPTS: ${KAFKA_HEAP_OPTS}
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:${KAFKA_ADVERTISED_LISTENERS_INTERNAL_PROTOCOL},EXTERNAL:${KAFKA_ADVERTISED_LISTENERS_EXTERNAL_PROTOCOL},DOCKER:PLAINTEXT
-      KAFKA_LOG4J_ROOT_LOGLEVEL: ERROR
-      KAFKA_ZOOKEEPER_CONNECT: ${KAFKA_ZOOKEEPER_CONNECT}
+      <<: *kafka-base-env
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-2:19093,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9093,DOCKER://host.docker.internal:29093
+      KAFKA_NODE_ID: 2
+      KAFKA_LISTENERS: 'INTERNAL://:19093,EXTERNAL://:9093,DOCKER://:29093,CONTROLLER://:19097'
     volumes:
       - "./data/kafka/broker-2/data:/var/lib/kafka/data"
       - "./data/kafka/broker-2/logs:/var/log/kafka"
@@ -536,20 +569,16 @@ services:
         ]
 
   kafka-3:
-    <<: *kafka-service
+    <<: *kafka-base-service
     container_name: kafka-3
     ports:
       - "9094:9094"
       - "29094:29094"
     environment:
+      <<: *kafka-base-env
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-3:19094,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9094,DOCKER://host.docker.internal:29094
-      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
-      KAFKA_BROKER_ID: 3
-      KAFKA_HEAP_OPTS: ${KAFKA_HEAP_OPTS}
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:${KAFKA_ADVERTISED_LISTENERS_INTERNAL_PROTOCOL},EXTERNAL:${KAFKA_ADVERTISED_LISTENERS_EXTERNAL_PROTOCOL},DOCKER:PLAINTEXT
-      KAFKA_LOG4J_ROOT_LOGLEVEL: ERROR
-      KAFKA_ZOOKEEPER_CONNECT: ${KAFKA_ZOOKEEPER_CONNECT}
+      KAFKA_NODE_ID: 3
+      KAFKA_LISTENERS: 'INTERNAL://:19094,EXTERNAL://:9094,DOCKER://:29094,CONTROLLER://:19098'
     volumes:
       - "./data/kafka/broker-3/data:/var/lib/kafka/data"
       - "./data/kafka/broker-3/logs:/var/log/kafka"
