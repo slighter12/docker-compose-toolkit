@@ -116,6 +116,17 @@ x-valkey-sentinel: &valkey-sentinel
     - valkey-sentinel-replica-1
     - valkey-sentinel-replica-2
 
+x-kafka-base-env: &kafka-base-env
+  KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
+  KAFKA_HEAP_OPTS: ${KAFKA_HEAP_OPTS}
+  KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:${KAFKA_ADVERTISED_LISTENERS_INTERNAL_PROTOCOL},EXTERNAL:${KAFKA_ADVERTISED_LISTENERS_EXTERNAL_PROTOCOL},DOCKER:PLAINTEXT,CONTROLLER:PLAINTEXT
+  KAFKA_LOG4J_ROOT_LOGLEVEL: ERROR
+  KAFKA_PROCESS_ROLES: 'broker,controller'
+  KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:19096,2@kafka-2:19097,3@kafka-3:19098'
+  KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+  KAFKA_CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+
 x-kafka-base-service: &kafka-base-service
   image: confluentinc/cp-kafka:8.1.0
   restart: unless-stopped
@@ -130,23 +141,23 @@ x-kafka-base-service: &kafka-base-service
     - "bash"
     - "-c"
     - |
+      set -euo pipefail
       set -m
       /etc/confluent/docker/run &
-      sleep 5
-      if [ ! -f /var/lib/kafka/data/cluster_id ]; then
-        /bin/kafka-storage format --config /etc/kafka/kafka.properties --cluster-id 'MkU3OEVBNTcwNTJENDM2Qk' --ignore-formatted
+      CONFIG_FILE="/etc/kafka/server.properties"
+      DATA_DIR="/var/lib/kafka/data"
+      until [ -f "$$CONFIG_FILE" ]; do
+        sleep 1
+      done
+      if [ ! -f "$$DATA_DIR/meta.properties" ]; then
+        echo "Formatting Kafka storage for node $$KAFKA_NODE_ID..."
+        kafka-storage format \
+          --config "$$CONFIG_FILE" \
+          --cluster-id "$$KAFKA_CLUSTER_ID" \
+          --ignore-formatted
       fi
       fg 1
-  environment:
-    KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
-    KAFKA_HEAP_OPTS: ${KAFKA_HEAP_OPTS}
-    KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-    KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:${KAFKA_ADVERTISED_LISTENERS_INTERNAL_PROTOCOL},EXTERNAL:${KAFKA_ADVERTISED_LISTENERS_EXTERNAL_PROTOCOL},DOCKER:PLAINTEXT,CONTROLLER:PLAINTEXT
-    KAFKA_LOG4J_ROOT_LOGLEVEL: ERROR
-    KAFKA_PROCESS_ROLES: 'broker,controller'
-    KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:19096,2@kafka-2:19097,3@kafka-3:19098'
-    KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
-    CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+  environment: *kafka-base-env
 
 x-kafka-healthcheck: &kafka-healthcheck
   interval: 10s
@@ -484,6 +495,7 @@ services:
       - "9092:9092"
       - "29092:29092"
     environment:
+      <<: *kafka-base-env
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-1:19092,EXTERNAL://${DOCKER_HOST_IP}:9092,DOCKER://host.docker.internal:29092
       KAFKA_NODE_ID: 1
       KAFKA_LISTENERS: 'INTERNAL://:19092,EXTERNAL://:9092,DOCKER://:29092,CONTROLLER://:19096'
@@ -505,6 +517,7 @@ services:
       - "9093:9093"
       - "29093:29093"
     environment:
+      <<: *kafka-base-env
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-2:19093,EXTERNAL://${DOCKER_HOST_IP}:9093,DOCKER://host.docker.internal:29093
       KAFKA_NODE_ID: 2
       KAFKA_LISTENERS: 'INTERNAL://:19093,EXTERNAL://:9093,DOCKER://:29093,CONTROLLER://:19097'
@@ -526,6 +539,7 @@ services:
       - "9094:9094"
       - "29094:29094"
     environment:
+      <<: *kafka-base-env
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-3:19094,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9094,DOCKER://host.docker.internal:29094
       KAFKA_NODE_ID: 3
       KAFKA_LISTENERS: 'INTERNAL://:19094,EXTERNAL://:9094,DOCKER://:29094,CONTROLLER://:19098'
